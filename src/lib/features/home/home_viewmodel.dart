@@ -1,35 +1,82 @@
-import 'package:calculator_app/app/app.bottomsheets.dart';
-import 'package:calculator_app/app/app.dialogs.dart';
 import 'package:calculator_app/app/app.locator.dart';
+import 'package:calculator_app/features/calculator/calculator_service.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
 
 class HomeViewModel extends BaseViewModel {
-  final _dialogService = locator<DialogService>();
-  final _bottomSheetService = locator<BottomSheetService>();
+  final _calculatorService = locator<CalculatorService>();
 
-  String get counterLabel => 'Counter is: $_counter';
+  String _displayText = '0';
+  bool _isScientificMode = false;
 
-  int _counter = 0;
+  String get displayText => _displayText;
+  bool get isScientificMode => _isScientificMode;
 
-  void incrementCounter() {
-    _counter++;
-    rebuildUi();
+  final List<String> buttons = [
+    '7',
+    '8',
+    '9',
+    '/',
+    '4',
+    '5',
+    '6',
+    '*',
+    '1',
+    '2',
+    '3',
+    '-',
+    '0',
+    '.',
+    '=',
+    '+'
+  ];
+
+  final List<String> scientificButtons = [
+    'sin',
+    'cos',
+    'tan',
+    '^',
+    'log',
+    'ln',
+    '(',
+    ')',
+    '√',
+    'π',
+    'e',
+    '%'
+  ];
+
+  void toggleScientificMode() {
+    _isScientificMode = !_isScientificMode;
+    notifyListeners();
   }
 
-  void showDialog() {
-    _dialogService.showCustomDialog(
-      variant: DialogType.infoAlert,
-      title: 'Steve Rocks!',
-      description: 'Give steve $_counter stars on Github',
-    );
+  void onButtonPressed(String button) {
+    if (button == '=') {
+      calculate();
+    } else {
+      updateDisplay(button);
+    }
   }
 
-  void showBottomSheet() {
-    _bottomSheetService.showCustomSheet(
-      variant: BottomSheetType.notice,
-      title: 'title',
-      description: 'desc',
-    );
+  void updateDisplay(String value) {
+    if (_displayText == '0') {
+      _displayText = value;
+    } else {
+      _displayText += value;
+    }
+    notifyListeners();
+  }
+
+  void calculate() {
+    try {
+      if (_isScientificMode) {
+        _displayText = _calculatorService.evaluateScientific(_displayText);
+      } else {
+        _displayText = _calculatorService.evaluate(_displayText);
+      }
+    } catch (e) {
+      _displayText = 'Error';
+    }
+    notifyListeners();
   }
 }

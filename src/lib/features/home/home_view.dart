@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:stacked/stacked.dart';
-
+import 'package:gap/gap.dart';
 import 'home_viewmodel.dart';
 
 class HomeView extends StackedView<HomeViewModel> {
@@ -14,70 +13,77 @@ class HomeView extends StackedView<HomeViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Gap(50),
-                Column(
-                  children: [
-                    const Text(
-                      'Hello from STEVE x STACKED!',
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Gap(25),
-                    MaterialButton(
-                      color: Colors.black,
-                      onPressed: viewModel.incrementCounter,
-                      child: Text(
-                        viewModel.counterLabel,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MaterialButton(
-                      color: Colors.grey,
-                      onPressed: viewModel.showDialog,
-                      child: const Text(
-                        'Show Dialog',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    MaterialButton(
-                      color: Colors.grey,
-                      onPressed: viewModel.showBottomSheet,
-                      child: const Text(
-                        'Show Bottom Sheet',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+      appBar: AppBar(
+        title: const Text('Calculator'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.science),
+            onPressed: viewModel.toggleScientificMode,
           ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  viewModel.displayText,
+                  style: const TextStyle(
+                      fontSize: 48, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            if (viewModel.isScientificMode)
+              Expanded(
+                flex: 4,
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: viewModel.scientificButtons.length,
+                  itemBuilder: (context, index) {
+                    final button = viewModel.scientificButtons[index];
+                    return MaterialButton(
+                      color: Colors.blue.shade100,
+                      child: Text(button),
+                      onPressed: () => viewModel.onButtonPressed(button),
+                    );
+                  },
+                ),
+              ),
+            Expanded(
+              flex: 4,
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: viewModel.buttons.length,
+                itemBuilder: (context, index) {
+                  final button = viewModel.buttons[index];
+                  return MaterialButton(
+                    color: Colors.blue.shade100,
+                    child: Text(button),
+                    onPressed: () => viewModel.onButtonPressed(button),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   @override
-  HomeViewModel viewModelBuilder(
-    BuildContext context,
-  ) =>
-      HomeViewModel();
+  HomeViewModel viewModelBuilder(BuildContext context) => HomeViewModel();
 }
